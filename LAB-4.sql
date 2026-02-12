@@ -92,19 +92,139 @@ WHERE CourseID=@ID
 END
 SELECT DBO.FN_FACTORIAL('CS201')
 
---8. Write a scalar function to check whether a given EnrollmentYear is in the past, current or future (Case 
---statement) 
+--8. Write a scalar function to check whether a given EnrollmentYear is in the past, current or future (Case statement) 
+CREATE OR ALTER FUNCTION FN_ENROLLMENTYEARSTATUS(@Year INT)
+RETURNS VARCHAR(20)
+AS
+BEGIN
+	DECLARE @CurrentYear INT = YEAR(GETDATE())
+
+	RETURN (
+		SELECT CASE
+			WHEN @Year < @CurrentYear THEN 'PAST'
+			WHEN @Year = @CurrentYear THEN 'CURRENT'
+			ELSE 'FUTURE'
+		END
+	)
+END
+SELECT DBO.FN_ENROLLMENTYEARSTATUS(2021)
 
 
 --9. Write a table-valued function that returns details of students whose names start with a given letter. 
+CREATE OR ALTER FUNCTION FN_STUDENTSBYLETTER(@Letter CHAR(1))
+RETURNS TABLE
+AS
+RETURN
+(
+	SELECT *
+	FROM STUDENT
+	WHERE StuName LIKE @Letter + '%'
+)
+SELECT * FROM DBO.FN_STUDENTSBYLETTER('R')
+
+
 --10. Write a table-valued function that returns unique department names from the STUDENT table. 
---Part – B 
+CREATE OR ALTER FUNCTION FN_UNIQUEDEPT()
+RETURNS TABLE
+AS
+RETURN
+(
+	SELECT DISTINCT StuDepartment
+	FROM STUDENT
+)
+SELECT * FROM DBO.FN_UNIQUEDEPT()
+
+
+--------------------------Part – B 
+
 --11. Write a scalar function that calculates age in years given a DateOfBirth. 
+CREATE OR ALTER FUNCTION FN_CALCULATEAGE(@DOB DATE)
+RETURNS INT
+AS
+BEGIN
+	RETURN DATEDIFF(YEAR,@DOB,GETDATE())
+END
+SELECT DBO.FN_CALCULATEAGE('2003-05-15')
+
+
 --12. Write a scalar function to check whether given number is palindrome or not. 
+CREATE OR ALTER FUNCTION FN_PALINDROME(@N INT)
+RETURNS VARCHAR(20)
+AS
+BEGIN
+	DECLARE @Original INT=@N,@Reverse INT=0,@Rem INT
+
+	WHILE(@N>0)
+	BEGIN
+		SET @Rem=@N%10
+		SET @Reverse=@Reverse*10+@Rem
+		SET @N=@N/10
+	END
+
+	IF(@Original=@Reverse)
+		RETURN 'PALINDROME'
+	RETURN 'NOT PALINDROME'
+END
+SELECT DBO.FN_PALINDROME(121)
+
+
 --13. Write a scalar function to calculate the sum of Credits for all courses in the 'CSE' department. 
+CREATE OR ALTER FUNCTION FN_CSE_TOTALCREDITS()
+RETURNS INT
+AS
+BEGIN
+	RETURN(
+		SELECT SUM(CourseCredits)
+		FROM COURSE
+		WHERE CourseDepartment='CSE'
+	)
+END
+SELECT DBO.FN_CSE_TOTALCREDITS()
+
+
 --14. Write a table-valued function that returns all courses taught by faculty with a specific designation. 
---Part – C 
---15. Write a scalar function that accepts StudentID and returns their total enrolled credits (sum of credits 
---from all active enrollments). 
---16. Write a scalar function that accepts two dates (joining date range) and returns the count of faculty who 
---joined in that period. 
+CREATE OR ALTER FUNCTION FN_COURSESBYDESIGNATION(@Designation VARCHAR(50))
+RETURNS TABLE
+AS
+RETURN
+(
+	SELECT C.CourseID,C.CourseName,F.FacultyName
+	FROM COURSE_ASSIGNMENT CA
+	JOIN COURSE C ON CA.CourseID=C.CourseID
+	JOIN FACULTY F ON CA.FacultyID=F.FacultyID
+	WHERE F.FacultyDesignation=@Designation
+)
+SELECT * FROM DBO.FN_COURSESBYDESIGNATION('Professor')
+
+
+-----------------------------Part – C 
+
+--15. Write a scalar function that accepts StudentID and returns their total enrolled credits (sum of credits from all active enrollments). 
+CREATE OR ALTER FUNCTION FN_TOTALACTIVECREDITS(@StudentID INT)
+RETURNS INT
+AS
+BEGIN
+	RETURN(
+		SELECT SUM(C.CourseCredits)
+		FROM ENROLLMENT E
+		JOIN COURSE C ON E.CourseID=C.CourseID
+		WHERE E.StudentID=@StudentID
+		AND E.EnrollmentStatus='Active'
+	)
+END
+SELECT DBO.FN_TOTALACTIVECREDITS(1)
+
+
+--16. Write a scalar function that accepts two dates (joining date range) and returns the count of faculty who joined in that period.
+CREATE OR ALTER FUNCTION FN_FACULTYCOUNTBYDATE(@FromDate DATE,@ToDate DATE)
+RETURNS INT
+AS
+BEGIN
+	RETURN(
+		SELECT COUNT(*)
+		FROM FACULTY
+		WHERE FacultyJoiningDate BETWEEN @FromDate AND @ToDate
+	)
+END
+SELECT DBO.FN_FACULTYCOUNTBYDATE('2010-01-01','2015-12-31')
+

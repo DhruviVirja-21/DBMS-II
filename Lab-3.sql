@@ -140,9 +140,59 @@ END;
 EXEC PR_EN_COUNT 'CS101'
 
 --Part – C 
---10.	Create a stored procedure that accepts a year as input and returns all courses assigned to faculty 
---in that year with classroom details.
+--10.	Create a stored procedure that accepts a year as input and returns all courses assigned to faculty  in that year with classroom details.
+CREATE PROCEDURE GetCoursesByYear
+    @InputYear INT
+AS
+BEGIN
+    SELECT 
+        C.CourseID,C.CourseName,C.CourseDepartment,CA.Semester,CA.Year,F.FacultyName,F.FacultyDesignation,CA.ClassRoom
+    FROM COURSE_ASSIGNMENT CA
+    JOIN COURSE C 
+        ON CA.CourseID = C.CourseID
+    JOIN FACULTY F 
+        ON CA.FacultyID = F.FacultyID
+    WHERE CA.Year = @InputYear
+    ORDER BY CA.Semester, C.CourseID;
+END;
+
+EXEC GetCoursesByYear 2024;
 
 
 --11.	Create a stored procedure that accepts From Date and To Date and returns all enrollments within that range with student and course details.
+CREATE PROCEDURE GetEnrollmentsByDateRange
+    @FromDate DATE,
+    @ToDate DATE
+AS
+BEGIN
+    SELECT 
+        E.EnrollmentID,S.StudentID,S.StuName,S.StuDepartment,C.CourseID,C.CourseName,C.CourseDepartment,E.EnrollmentDate,
+        E.Grade,E.EnrollmentStatus
+    FROM ENROLLMENT E
+    JOIN STUDENT S 
+        ON E.StudentID = S.StudentID
+    JOIN COURSE C 
+        ON E.CourseID = C.CourseID
+    WHERE E.EnrollmentDate BETWEEN @FromDate AND @ToDate
+    ORDER BY E.EnrollmentDate;
+END;
+EXEC GetEnrollmentsByDateRange '2021-01-01', '2022-12-31';
+
 --12.	Create a stored procedure that accepts FacultyID and calculates their total teaching load (sum of credits of all courses assigned).
+CREATE PROCEDURE GetFacultyTeachingLoad
+    @FacultyID INT
+AS
+BEGIN
+    SELECT 
+        F.FacultyID,
+        F.FacultyName,
+        SUM(C.CourseCredits) AS TotalTeachingLoad
+    FROM COURSE_ASSIGNMENT CA
+    JOIN COURSE C 
+        ON CA.CourseID = C.CourseID
+    JOIN FACULTY F 
+        ON CA.FacultyID = F.FacultyID
+    WHERE F.FacultyID = @FacultyID
+    GROUP BY F.FacultyID, F.FacultyName;
+END;
+EXEC GetFacultyTeachingLoad 101;
