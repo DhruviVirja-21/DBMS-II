@@ -252,12 +252,10 @@ DROP TRIGGER TR_COURSE_CREDIT_LOG
 
 
 
---# Lab-6: AFTER Trigger – Extra Questions
+-------------------# Lab-6: AFTER Trigger – Extra Questions--------------------
 
 --### For Query 3 : Monitoring Specific Events on COURSE Table
-
 --Create an AFTER trigger on the COURSE table to monitor all operations (INSERT, UPDATE, DELETE).
-
 --**Task:**
 --Instead of printing a common message, print operation-specific messages:
 --- INSERT → *Course record inserted*
@@ -266,7 +264,7 @@ DROP TRIGGER TR_COURSE_CREDIT_LOG
 
 --**Hint:**
 --Use the *inserted* and *deleted* tables to detect which operation occurred.
-
+---------------------------------------------------------------------
 
 --### For Query 4 : Logging Data on New Student Registration
 --**1) Example Output in LOG Table**
@@ -277,41 +275,25 @@ DROP TRIGGER TR_COURSE_CREDIT_LOG
 
 --**2) If rows are inserted one-by-one, how many times will the trigger run?**
 --**Example: inserting rows individually**
---INSERT INTO STUDENT VALUES
+--INSERT INTO STUDENT VALUES(23,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024);
+--INSERT INTO STUDENT VALUES(24,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024);
+--INSERT INTO STUDENT VALUES(25,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024);
 
---(23,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024);
-
---INSERT INTO STUDENT VALUES
-
---(24,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024);
-
---INSERT INTO STUDENT VALUES
-
---(25,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024);
-
------
 
 --**3) If multiple students are inserted in a single INSERT statement, how many times does the trigger run?**
 
 --**Example: inserting multiple students at once**
-
---INSERT INTO STUDENT VALUES
-
---(29,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024),
-
+--INSERT INTO STUDENT VALUES(29,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024),
 --(30,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024),
-
 --(31,'Jay Patel','jay@univ.edu','9879999084','CSE','2005-09-18',2024);
 
 --**Questions:**
-
 --- How many times does the trigger execute?
 --- How many log entries are inserted into the LOG table?
 
------
+-------------------------------------------------------------------
 
---## Conceptual Questions
-
+--------------------## Conceptual Questions------------------
 --1. Can triggers return values?
 --2. Does a trigger run per row or per statement?
 --3. What data is stored in the inserted and deleted tables?
